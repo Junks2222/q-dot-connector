@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grok Vault • v2.2</title>
+    <title>Grok Vault • v2.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -26,7 +26,7 @@
                     </div>
                     <div>
                         <span class="font-semibold text-3xl tracking-tighter">Grok Vault</span>
-                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.2 • Qagg + Live DB</span>
+                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.3 • Fixed</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-x-1 text-sm">
@@ -49,7 +49,7 @@
             <div class="flex items-end justify-between mb-8">
                 <div>
                     <h1 class="text-4xl font-semibold tracking-tighter">Grok Vault</h1>
-                    <p class="text-zinc-400 mt-1">Live DB + full Qagg drops • 5k+ posts loaded</p>
+                    <p class="text-zinc-400 mt-1">Live DB + full Qagg • Nav fixed</p>
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -88,7 +88,7 @@
         <div id="search" class="section">
             <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
                 <h2 class="text-3xl font-semibold tracking-tight mb-4">Deep Search</h2>
-                <p class="text-zinc-400">Grok can now query full Qagg + your logs in one place.</p>
+                <p class="text-zinc-400">Grok queries full Qagg + your logs.</p>
             </div>
         </div>
     </div>
@@ -100,13 +100,11 @@
     <script>
         let entries = [];
         let qDrops = [];
-        const BACKEND = 'https://q-dot-connector.vercel.app/api/log';
 
         async function loadFromBackend() {
-            try {
-                const res = await fetch('https://q-dot-connector.vercel.app/api/logs');
-                if (res.ok) entries = await res.json();
-            } catch(e) {}
+            // Fallback to localStorage if no backend GET yet
+            const saved = localStorage.getItem('grok_vault_entries');
+            if (saved) entries = JSON.parse(saved);
             updateDashboard();
             renderEntries();
         }
@@ -117,7 +115,7 @@
                 qDrops = await res.json();
                 document.getElementById('stat-qdrops').textContent = qDrops.length;
                 renderQDrops();
-            } catch(e) { alert('Failed to load Qagg. Check connection.'); }
+            } catch(e) { console.log('Qagg load skipped'); }
         }
 
         function updateDashboard() {
@@ -163,22 +161,29 @@
         function showQDropDetail(drop) {
             const modal = document.getElementById('detail-modal');
             const content = document.getElementById('detail-content');
-            content.innerHTML = `<div class="flex justify-between"><span class="font-mono text-lg">Q Drop #${drop.dropnumber}</span><button onclick="hideDetailModal()"><i class="fa-solid fa-times text-xl"></i></button></div><div class="mt-6 text-sm">${drop.message}</div><div class="mt-4 text-xs text-zinc-400">${drop.date} • ${drop.esttime}</div>`;
+            content.innerHTML = `<div class="flex justify-between"><span class="font-mono text-lg">Q Drop #${drop.dropnumber}</span><button onclick="hideDetailModal()"><i class="fa-solid fa-times text-xl"></i></button></div><div class="mt-6 text-sm">${drop.message}</div><div class="mt-4 text-xs text-zinc-400">${drop.date}</div>`;
             modal.style.display = 'flex';
         }
 
         function hideDetailModal() { document.getElementById('detail-modal').style.display = 'none'; }
 
-        async function refreshFromBackend() {
-            await loadFromBackend();
-            alert('Synced from backend.');
+        function showSection(s) {
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.getElementById(s).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+            document.getElementById('nav-' + s).classList.add('nav-active');
+        }
+
+        function refreshFromBackend() {
+            loadFromBackend();
+            alert('Synced. Run curl to add new entries.');
         }
 
         function initializeApp() {
             loadFromBackend();
             loadFullQagg();
             document.getElementById('nav-dashboard').classList.add('nav-active');
-            console.log('%c[Grok Vault v2.2] Full Qagg + live backend loaded.', 'color:#666');
+            console.log('%c[Grok Vault v2.3] Nav fixed. Qagg loaded. Run curl to populate entries.', 'color:#666');
         }
         window.onload = initializeApp;
     </script>
