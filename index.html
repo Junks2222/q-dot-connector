@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grok Vault • v2.0</title>
+    <title>Grok Vault • v2.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -25,7 +25,7 @@
                     </div>
                     <div>
                         <span class="font-semibold text-3xl tracking-tighter">Grok Vault</span>
-                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.0 • Persistent Memory</span>
+                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.1 • Live DB</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-x-1 text-sm">
@@ -34,11 +34,8 @@
                     <button onclick="showSection('search')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-search">Search</button>
                 </div>
                 <div class="flex items-center gap-x-2">
-                    <button onclick="showGrokImportModal()" class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
-                        <i class="fa-solid fa-robot"></i> <span>Grok Import</span>
-                    </button>
-                    <button onclick="showAddModal()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
-                        <i class="fa-solid fa-plus"></i> <span>New</span>
+                    <button onclick="refreshFromBackend()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
+                        <i class="fa-solid fa-sync"></i> <span>Sync Log</span>
                     </button>
                 </div>
             </div>
@@ -50,18 +47,15 @@
             <div class="flex items-end justify-between mb-8">
                 <div>
                     <h1 class="text-4xl font-semibold tracking-tighter">Grok Vault</h1>
-                    <p class="text-zinc-400 mt-1">Your persistent Grok memory • 12 entries • Ready for deep dives</p>
+                    <p class="text-zinc-400 mt-1">Live backend DB • Ready for X posts</p>
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-                    <div><div class="text-3xl font-semibold" id="stat-total">12</div><div class="text-sm text-zinc-400">Total Logs</div></div>
+                    <div><div class="text-3xl font-semibold" id="stat-total">0</div><div class="text-sm text-zinc-400">Total Logs</div></div>
                 </div>
                 <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-                    <div><div class="text-3xl font-semibold" id="stat-xposts">7</div><div class="text-sm text-zinc-400">X Posts Logged</div></div>
-                </div>
-                <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-                    <div><div class="text-3xl font-semibold" id="stat-connections">47</div><div class="text-sm text-zinc-400">Connections</div></div>
+                    <div><div class="text-3xl font-semibold" id="stat-xposts">0</div><div class="text-sm text-zinc-400">X Posts</div></div>
                 </div>
             </div>
             <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
@@ -73,63 +67,16 @@
         <div id="entries" class="section">
             <div class="flex justify-between mb-6">
                 <h2 class="text-3xl font-semibold tracking-tight">All Logs</h2>
-                <input id="search-input" type="text" placeholder="Search title, summary, tags..." class="w-80 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterEntries()">
+                <input id="search-input" type="text" placeholder="Search..." class="w-80 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterEntries()">
             </div>
             <div id="entries-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
 
         <div id="search" class="section">
-            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
                 <h2 class="text-3xl font-semibold tracking-tight mb-4">Deep Search</h2>
-                <p class="text-zinc-400 mb-6">Grok can query this log later. Export full JSON for analysis.</p>
-                <button onclick="exportForGrok()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl flex items-center gap-x-2">
-                    <i class="fa-solid fa-download"></i> <span>Export Full Log (JSON for Grok)</span>
-                </button>
+                <p class="text-zinc-400">Ask Grok to query the live log. Use Sync button after I log new entries.</p>
             </div>
-        </div>
-    </div>
-
-    <!-- Grok Import Modal -->
-    <div id="grok-import-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]" onclick="if (event.target.id === 'grok-import-modal') hideGrokImportModal()">
-        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-2xl mx-4 p-6">
-            <div class="flex justify-between items-center mb-5">
-                <div>
-                    <span class="px-3 py-1 text-xs rounded-full bg-violet-500/20 text-violet-300">GROK NATIVE</span>
-                    <h3 class="font-semibold text-xl mt-2">Import from Grok</h3>
-                </div>
-                <button onclick="hideGrokImportModal()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-times text-xl"></i></button>
-            </div>
-            <p class="text-sm text-zinc-400 mb-4">Paste the JSON block I output when you ask me to log something.</p>
-            <textarea id="grok-import-text" rows="8" class="w-full bg-zinc-950 border border-zinc-700 p-4 rounded-2xl text-sm font-mono" placeholder='{"type":"x_post","url":"https://x.com/...","title":"...","summary":"...","fact_check":"Verified: true","tags":["iran","policy"]}'></textarea>
-            <div class="mt-4 flex gap-x-3">
-                <button onclick="hideGrokImportModal()" class="flex-1 py-3 rounded-2xl border border-zinc-700 text-sm">Cancel</button>
-                <button onclick="importFromGrok()" class="flex-1 py-3 bg-violet-600 hover:bg-violet-700 text-white text-sm rounded-2xl font-medium">Import & Store</button>
-            </div>
-            <div class="mt-4 text-[10px] text-zinc-500">Format: JSON with type, url, title, summary, fact_check, tags, content</div>
-        </div>
-    </div>
-
-    <div id="add-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]" onclick="if (event.target.id === 'add-modal') hideAddModal()">
-        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-lg mx-4 p-6">
-            <h3 class="font-semibold text-xl mb-5">New Manual Entry</h3>
-            <form id="add-form" onsubmit="addNewEntry(event)">
-                <input type="text" id="entry-title" required placeholder="Title" class="w-full bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm mb-4">
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <input type="date" id="entry-date" class="bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
-                    <select id="entry-type" class="bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
-                        <option value="x_post">X Post</option>
-                        <option value="grok_insight">Grok Insight</option>
-                        <option value="web_link">Web Link</option>
-                        <option value="note">Note</option>
-                    </select>
-                </div>
-                <textarea id="entry-summary" rows="3" required placeholder="Summary" class="w-full bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm mb-4"></textarea>
-                <input type="text" id="entry-tags" placeholder="Tags (comma)" class="w-full bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
-                <div class="mt-6 flex gap-x-3">
-                    <button type="button" onclick="hideAddModal()" class="flex-1 py-3 rounded-2xl border border-zinc-700 text-sm">Cancel</button>
-                    <button type="submit" class="flex-1 py-3 bg-indigo-600 text-white text-sm rounded-2xl font-medium">Add</button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -139,18 +86,18 @@
 
     <script>
         let entries = [];
+        const BACKEND = 'https://q-dot-connector.vercel.app/api/log'; // update if custom domain
 
-        function loadData() {
-            const saved = localStorage.getItem('grok_vault_entries');
-            if (saved && JSON.parse(saved).length > 0) {
-                entries = JSON.parse(saved);
-            } else {
-                entries = [
-                    {id:1, timestamp:"2026-05-10T10:00:00Z", type:"x_post", url:"https://x.com/example/status/123", title:"Iran tensions escalate", summary:"Iran threatens Hormuz closure after sanctions. Oil +8%.", content:"Full post text...", fact_check:"Verified via multiple sources. High relevance to energy reset narrative.", relevance:"high", tags:["iran","hormuz","energy"], connections:[]},
-                    {id:2, timestamp:"2026-05-08T14:30:00Z", type:"grok_insight", title:"Dmitriev tsunami signal", summary:"'7 Waves' post points to EU crisis May-Dec 2026 ending in 2027 reset.", fact_check:"Consistent with prior Dmitriev patterns.", relevance:"high", tags:["dmitriev","reset","signal"], connections:[]}
-                ];
-                saveData();
-            }
+        async function loadFromBackend() {
+            try {
+                const res = await fetch(BACKEND.replace('/log', '/logs') || 'https://q-dot-connector.vercel.app/api/logs');
+                if (res.ok) {
+                    entries = await res.json();
+                    saveData();
+                }
+            } catch(e) { console.log('Using local cache'); }
+            updateDashboard();
+            renderEntries();
         }
 
         function saveData() { localStorage.setItem('grok_vault_entries', JSON.stringify(entries)); }
@@ -160,7 +107,7 @@
             const xCount = entries.filter(e => e.type === 'x_post').length;
             document.getElementById('stat-xposts').textContent = xCount;
             const recent = document.getElementById('recent-entries');
-            recent.innerHTML = entries.slice(0,4).map(e => `<div class="p-3 bg-zinc-950 rounded-2xl border border-zinc-800 cursor-pointer" onclick="showEntryDetail(${e.id})"><div class="flex justify-between"><span class="font-medium text-sm">${e.title}</span><span class="text-xs text-zinc-500">${e.timestamp.split('T')[0]}</span></div><div class="text-xs text-emerald-400 mt-1">${e.type} • ${e.tags?.slice(0,2).join(', ')}</div></div>`).join('');
+            recent.innerHTML = entries.slice(0,4).map(e => `<div class="p-3 bg-zinc-950 rounded-2xl border border-zinc-800 cursor-pointer" onclick="showEntryDetail(${e.id})"><div class="flex justify-between"><span class="font-medium text-sm">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div><div class="text-xs text-emerald-400 mt-1">${e.type} • ${ (e.tags||[]).slice(0,2).join(', ')}</div></div>`).join('');
         }
 
         function renderEntries(filtered=null) {
@@ -174,7 +121,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <span class="px-2.5 py-px text-xs rounded bg-zinc-800 text-zinc-400">${entry.type}</span>
-                            <span class="ml-2 text-xs text-zinc-500">${entry.timestamp.split('T')[0]}</span>
+                            <span class="ml-2 text-xs text-zinc-500">${(entry.timestamp||'').split('T')[0]}</span>
                         </div>
                         <div class="flex gap-1">${(entry.tags||[]).slice(0,2).map(t => `<span class="px-1.5 py-px text-[10px] grok-tag rounded">${t}</span>`).join('')}</div>
                     </div>
@@ -213,106 +160,21 @@
                 <div class="mt-4 text-sm">${entry.summary}</div>
                 ${entry.fact_check ? `<div class="mt-4 p-4 bg-zinc-950 rounded-2xl text-sm"><div class="font-semibold text-emerald-400 mb-1">Fact Check</div>${entry.fact_check}</div>` : ''}
                 <div class="mt-4 flex flex-wrap gap-2">${(entry.tags||[]).map(t => `<span class="px-3 py-1 text-xs grok-tag rounded-2xl">#${t}</span>`).join('')}</div>
-                ${entry.content ? `<div class="mt-4 text-xs text-zinc-400">Full: ${entry.content.substring(0,200)}...</div>` : ''}
             `;
             modal.style.display = 'flex';
         }
 
         function hideDetailModal() { document.getElementById('detail-modal').style.display = 'none'; }
 
-        function addNewEntry(e) {
-            e.preventDefault();
-            const newEntry = {
-                id: Date.now(),
-                timestamp: new Date().toISOString(),
-                type: document.getElementById('entry-type').value,
-                title: document.getElementById('entry-title').value,
-                summary: document.getElementById('entry-summary').value,
-                tags: document.getElementById('entry-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
-                connections: []
-            };
-            entries.unshift(newEntry);
-            saveData();
-            hideAddModal();
-            updateDashboard();
-            renderEntries();
-        }
-
-        function showAddModal() {
-            document.getElementById('add-modal').style.display = 'flex';
-            document.getElementById('entry-date').value = new Date().toISOString().split('T')[0];
-        }
-        function hideAddModal() { document.getElementById('add-modal').style.display = 'none'; }
-
-        function showGrokImportModal() {
-            document.getElementById('grok-import-modal').style.display = 'flex';
-            document.getElementById('grok-import-text').focus();
-        }
-        function hideGrokImportModal() { document.getElementById('grok-import-modal').style.display = 'none'; }
-
-        function importFromGrok() {
-            const text = document.getElementById('grok-import-text').value.trim();
-            if (!text) return;
-            try {
-                let data;
-                if (text.startsWith('{')) {
-                    data = JSON.parse(text);
-                } else {
-                    // simple key: value parser fallback
-                    data = {};
-                    text.split('\n').forEach(line => {
-                        const [k,v] = line.split(':').map(s=>s.trim());
-                        if (k && v) data[k.toLowerCase()] = v;
-                    });
-                }
-                const newEntry = {
-                    id: Date.now(),
-                    timestamp: new Date().toISOString(),
-                    type: data.type || 'grok_insight',
-                    url: data.url || '',
-                    title: data.title || 'Untitled',
-                    summary: data.summary || data.content || '',
-                    content: data.content || '',
-                    fact_check: data.fact_check || '',
-                    relevance: data.relevance || 'medium',
-                    tags: Array.isArray(data.tags) ? data.tags : (data.tags || '').split(',').map(t=>t.trim()).filter(Boolean),
-                    connections: []
-                };
-                entries.unshift(newEntry);
-                saveData();
-                hideGrokImportModal();
-                updateDashboard();
-                renderEntries();
-                alert('Logged successfully. Grok can now reference entry #' + newEntry.id);
-            } catch(err) {
-                alert('Parse error. Use clean JSON format.');
-            }
-        }
-
-        function exportForGrok() {
-            const json = JSON.stringify(entries, null, 2);
-            const blob = new Blob([json], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `grok-vault-log-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function showSection(s) {
-            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-            document.getElementById(s).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-            document.getElementById('nav-' + s).classList.add('nav-active');
+        async function refreshFromBackend() {
+            await loadFromBackend();
+            alert('Log synced from backend.');
         }
 
         function initializeApp() {
-            loadData();
-            updateDashboard();
-            renderEntries();
+            loadFromBackend();
             document.getElementById('nav-dashboard').classList.add('nav-active');
-            console.log('%c[Grok Vault v2.0] Ready for Grok-native logging.', 'color:#666');
+            console.log('%c[Grok Vault v2.1] Connected to live backend.', 'color:#666');
         }
         window.onload = initializeApp;
     </script>
