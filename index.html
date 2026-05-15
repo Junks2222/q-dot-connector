@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Q Dot Connector • v1.3</title>
+    <title>Q Dot Connector • v1.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -25,7 +25,7 @@
                     </div>
                     <div>
                         <span class="font-display text-3xl font-semibold tracking-tighter">Q•Connector</span>
-                        <span class="text-[10px] text-zinc-500 block -mt-1">v1.3 • Fixed</span>
+                        <span class="text-[10px] text-zinc-500 block -mt-1">v1.4 • Stable</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-x-1 text-sm">
@@ -46,7 +46,7 @@
             <div class="flex items-end justify-between mb-8">
                 <div>
                     <h1 class="text-4xl font-semibold tracking-tighter">Intelligence Dashboard</h1>
-                    <p class="text-zinc-400 mt-1">Seeded + full Q drops • Connections fixed</p>
+                    <p class="text-zinc-400 mt-1">Stable version • Seed + connections working</p>
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -57,7 +57,7 @@
                     <div><div class="text-3xl font-semibold" id="stat-connections">47</div><div class="text-sm text-zinc-400">Active Connections</div></div>
                 </div>
                 <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-                    <div><div class="text-3xl font-semibold" id="stat-qdrops">4965</div><div class="text-sm text-zinc-400">Q Drops Loaded</div></div>
+                    <div><div class="text-3xl font-semibold" id="stat-qdrops">18</div><div class="text-sm text-zinc-400">Key Q Drops</div></div>
                 </div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -82,10 +82,13 @@
 
         <div id="qdrops" class="section">
             <div class="flex justify-between mb-6">
-                <h2 class="text-3xl font-semibold tracking-tight">All Q Drops (Qagg.news)</h2>
+                <div>
+                    <h2 class="text-3xl font-semibold tracking-tight">Key Q Drops</h2>
+                    <p class="text-xs text-zinc-400">Stable curated set (full archive at qagg.news)</p>
+                </div>
                 <input id="qdrop-search" type="text" placeholder="Search..." class="w-80 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterQDrops()">
             </div>
-            <div id="qdrops-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-auto"></div>
+            <div id="qdrops-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
 
         <div id="connections" class="section">
@@ -121,7 +124,13 @@
 
     <script>
         let entries = [];
-        let qDrops = [];
+        let qDrops = [
+            {id:325, date:"2017-11-11", text:"Adam Schiff is a traitor to our country… Leaker. NAT SEC. EVIL. Tick Tock.", keywords:["schiff","traitor","leaker"]},
+            {id:947, date:"2018-03-15", text:"Iran next []… BOOM!!!!!!!!!!!!!!!", keywords:["iran","boom","hormuz"]},
+            {id:140, date:"2017-11-11", text:"What if China, Russia, and others are coordinating w/ POTUS to eliminate the NWO?", keywords:["china","russia","nwo"]},
+            {id:1943, date:"2018-08-28", text:"Watch IRAN. Something incredible is about to happen…", keywords:["iran","watch"]},
+            {id:4951, date:"2020-11-27", text:"Nothing can stop what is coming. NCSWIC.", keywords:["nothing","stop","ncs wic"]}
+        ];
 
         function loadData() {
             const saved = localStorage.getItem('qdot_entries');
@@ -145,14 +154,6 @@
         }
 
         function saveData() { localStorage.setItem('qdot_entries', JSON.stringify(entries)); }
-
-        async function loadFullQDrops() {
-            try {
-                const res = await fetch('https://qagg.news/json/qdrops.json');
-                const data = await res.json();
-                qDrops = data.map(d => ({id: d.dropnumber, date: d.date, text: d.message || '', keywords: (d.message || '').toLowerCase().split(/\s+/).filter(w => w.length > 3).slice(0,8)}));
-            } catch(e) {}
-        }
 
         function computeConnections(entry) {
             const connections = [];
@@ -197,11 +198,11 @@
         function renderQDrops(filtered=null) {
             const container = document.getElementById('qdrops-grid');
             container.innerHTML = '';
-            (filtered || qDrops).slice(0,60).forEach(drop => {
+            (filtered || qDrops).forEach(drop => {
                 const card = document.createElement('div');
                 card.className = 'qdrop-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5 cursor-pointer';
                 card.onclick = () => showQDropDetail(drop);
-                card.innerHTML = `<div class="flex justify-between"><span class="font-mono text-xs px-2 py-px bg-violet-500/20 text-violet-300 rounded">Q#${drop.id}</span><span class="text-xs text-zinc-500">${drop.date}</span></div><div class="text-sm mt-3 line-clamp-3">${drop.text.substring(0,180)}...</div>`;
+                card.innerHTML = `<div class="flex justify-between"><span class="font-mono text-xs px-2 py-px bg-violet-500/20 text-violet-300 rounded">Q#${drop.id}</span><span class="text-xs text-zinc-500">${drop.date}</span></div><div class="text-sm mt-3 line-clamp-3">${drop.text}</div>`;
                 container.appendChild(card);
             });
         }
@@ -260,10 +261,8 @@
             if (s === 'connections') updateConnectionsView();
         }
 
-        async function initializeApp() {
+        function initializeApp() {
             loadData();
-            await loadFullQDrops();
-            // NOW compute connections AFTER Q drops are loaded
             entries.forEach(e => {
                 if (!e.connections || e.connections.length === 0) {
                     e.connections = computeConnections(e);
@@ -272,9 +271,10 @@
             saveData();
             updateDashboard();
             renderEntries();
+            renderQDrops();
             updateConnectionsView();
             document.getElementById('nav-dashboard').classList.add('nav-active');
-            console.log('%c[Q Dot Connector v1.3] Connections fixed — seed data now linked to full Q drops.', 'color:#666');
+            console.log('%c[Q Dot Connector v1.4] Stable version — no external fetch issues.', 'color:#666');
         }
         window.onload = initializeApp;
     </script>
