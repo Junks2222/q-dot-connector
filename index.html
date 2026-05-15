@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grok Vault • v2.1</title>
+    <title>Grok Vault • v2.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -13,6 +13,7 @@
         .nav-active { color: #6366f1; border-bottom: 2px solid #6366f1; }
         .entry-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .grok-tag { background: #312e81; color: #a5b4fc; }
+        .qdrop-card { transition: all 0.2s ease; }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
@@ -25,17 +26,18 @@
                     </div>
                     <div>
                         <span class="font-semibold text-3xl tracking-tighter">Grok Vault</span>
-                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.1 • Live DB</span>
+                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.2 • Qagg + Live DB</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-x-1 text-sm">
                     <button onclick="showSection('dashboard')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-dashboard">Dashboard</button>
                     <button onclick="showSection('entries')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-entries">Entries</button>
+                    <button onclick="showSection('qdrops')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-qdrops">Q Drops</button>
                     <button onclick="showSection('search')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-search">Search</button>
                 </div>
                 <div class="flex items-center gap-x-2">
                     <button onclick="refreshFromBackend()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
-                        <i class="fa-solid fa-sync"></i> <span>Sync Log</span>
+                        <i class="fa-solid fa-sync"></i> <span>Sync</span>
                     </button>
                 </div>
             </div>
@@ -47,7 +49,7 @@
             <div class="flex items-end justify-between mb-8">
                 <div>
                     <h1 class="text-4xl font-semibold tracking-tighter">Grok Vault</h1>
-                    <p class="text-zinc-400 mt-1">Live backend DB • Ready for X posts</p>
+                    <p class="text-zinc-400 mt-1">Live DB + full Qagg drops • 5k+ posts loaded</p>
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -55,7 +57,7 @@
                     <div><div class="text-3xl font-semibold" id="stat-total">0</div><div class="text-sm text-zinc-400">Total Logs</div></div>
                 </div>
                 <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-                    <div><div class="text-3xl font-semibold" id="stat-xposts">0</div><div class="text-sm text-zinc-400">X Posts</div></div>
+                    <div><div class="text-3xl font-semibold" id="stat-qdrops">4965</div><div class="text-sm text-zinc-400">Qagg Posts</div></div>
                 </div>
             </div>
             <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
@@ -72,10 +74,21 @@
             <div id="entries-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
 
+        <div id="qdrops" class="section">
+            <div class="flex justify-between mb-6">
+                <div>
+                    <h2 class="text-3xl font-semibold tracking-tight">Full Qagg Drops</h2>
+                    <p class="text-xs text-zinc-400">4,965 posts • Live from qagg.news</p>
+                </div>
+                <input id="qdrop-search" type="text" placeholder="Search Q drops..." class="w-80 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterQDrops()">
+            </div>
+            <div id="qdrops-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-auto"></div>
+        </div>
+
         <div id="search" class="section">
             <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
                 <h2 class="text-3xl font-semibold tracking-tight mb-4">Deep Search</h2>
-                <p class="text-zinc-400">Ask Grok to query the live log. Use Sync button after I log new entries.</p>
+                <p class="text-zinc-400">Grok can now query full Qagg + your logs in one place.</p>
             </div>
         </div>
     </div>
@@ -86,28 +99,31 @@
 
     <script>
         let entries = [];
-        const BACKEND = 'https://q-dot-connector.vercel.app/api/log'; // update if custom domain
+        let qDrops = [];
+        const BACKEND = 'https://q-dot-connector.vercel.app/api/log';
 
         async function loadFromBackend() {
             try {
-                const res = await fetch(BACKEND.replace('/log', '/logs') || 'https://q-dot-connector.vercel.app/api/logs');
-                if (res.ok) {
-                    entries = await res.json();
-                    saveData();
-                }
-            } catch(e) { console.log('Using local cache'); }
+                const res = await fetch('https://q-dot-connector.vercel.app/api/logs');
+                if (res.ok) entries = await res.json();
+            } catch(e) {}
             updateDashboard();
             renderEntries();
         }
 
-        function saveData() { localStorage.setItem('grok_vault_entries', JSON.stringify(entries)); }
+        async function loadFullQagg() {
+            try {
+                const res = await fetch('https://qagg.news/json/qdrops.json');
+                qDrops = await res.json();
+                document.getElementById('stat-qdrops').textContent = qDrops.length;
+                renderQDrops();
+            } catch(e) { alert('Failed to load Qagg. Check connection.'); }
+        }
 
         function updateDashboard() {
             document.getElementById('stat-total').textContent = entries.length;
-            const xCount = entries.filter(e => e.type === 'x_post').length;
-            document.getElementById('stat-xposts').textContent = xCount;
             const recent = document.getElementById('recent-entries');
-            recent.innerHTML = entries.slice(0,4).map(e => `<div class="p-3 bg-zinc-950 rounded-2xl border border-zinc-800 cursor-pointer" onclick="showEntryDetail(${e.id})"><div class="flex justify-between"><span class="font-medium text-sm">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div><div class="text-xs text-emerald-400 mt-1">${e.type} • ${ (e.tags||[]).slice(0,2).join(', ')}</div></div>`).join('');
+            recent.innerHTML = entries.slice(0,4).map(e => `<div class="p-3 bg-zinc-950 rounded-2xl border border-zinc-800 cursor-pointer" onclick="showEntryDetail(${e.id})"><div class="flex justify-between"><span class="font-medium text-sm">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div><div class="text-xs text-emerald-400 mt-1">${e.type} • ${(e.tags||[]).slice(0,2).join(', ')}</div></div>`).join('');
         }
 
         function renderEntries(filtered=null) {
@@ -117,50 +133,37 @@
                 const card = document.createElement('div');
                 card.className = 'entry-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5 cursor-pointer';
                 card.onclick = () => showEntryDetail(entry.id);
-                card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="px-2.5 py-px text-xs rounded bg-zinc-800 text-zinc-400">${entry.type}</span>
-                            <span class="ml-2 text-xs text-zinc-500">${(entry.timestamp||'').split('T')[0]}</span>
-                        </div>
-                        <div class="flex gap-1">${(entry.tags||[]).slice(0,2).map(t => `<span class="px-1.5 py-px text-[10px] grok-tag rounded">${t}</span>`).join('')}</div>
-                    </div>
-                    <h4 class="font-semibold mt-2">${entry.title}</h4>
-                    <p class="text-sm text-zinc-400 line-clamp-2 mt-1">${entry.summary}</p>
-                    ${entry.url ? `<a href="${entry.url}" target="_blank" class="text-xs text-indigo-400 mt-2 inline-block">View source →</a>` : ''}
-                `;
+                card.innerHTML = `<div class="flex justify-between"><span class="px-2.5 py-px text-xs rounded bg-zinc-800 text-zinc-400">${entry.type}</span><span class="ml-2 text-xs text-zinc-500">${(entry.timestamp||'').split('T')[0]}</span></div><h4 class="font-semibold mt-2">${entry.title}</h4><p class="text-sm text-zinc-400 line-clamp-2 mt-1">${entry.summary}</p>${entry.url ? `<a href="${entry.url}" target="_blank" class="text-xs text-indigo-400 mt-2 inline-block">View source →</a>` : ''}`;
                 container.appendChild(card);
             });
         }
 
         function filterEntries() {
             const term = document.getElementById('search-input').value.toLowerCase();
-            renderEntries(entries.filter(e => 
-                (e.title||'').toLowerCase().includes(term) || 
-                (e.summary||'').toLowerCase().includes(term) || 
-                (e.tags||[]).join(' ').toLowerCase().includes(term)
-            ));
+            renderEntries(entries.filter(e => (e.title||'').toLowerCase().includes(term) || (e.summary||'').toLowerCase().includes(term) || (e.tags||[]).join(' ').toLowerCase().includes(term)));
         }
 
-        function showEntryDetail(id) {
-            const entry = entries.find(e => e.id === id);
-            if (!entry) return;
+        function renderQDrops(filtered=null) {
+            const container = document.getElementById('qdrops-grid');
+            container.innerHTML = '';
+            (filtered || qDrops).slice(0, 80).forEach(drop => {
+                const card = document.createElement('div');
+                card.className = 'qdrop-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5 cursor-pointer';
+                card.onclick = () => showQDropDetail(drop);
+                card.innerHTML = `<div class="flex justify-between"><span class="font-mono text-xs px-2 py-px bg-violet-500/20 text-violet-300 rounded">Q#${drop.dropnumber}</span><span class="text-xs text-zinc-500">${drop.date}</span></div><div class="text-sm mt-3 line-clamp-3">${drop.message.substring(0,180)}...</div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function filterQDrops() {
+            const term = document.getElementById('qdrop-search').value.toLowerCase();
+            renderQDrops(qDrops.filter(d => (d.message||'').toLowerCase().includes(term) || d.dropnumber.toString().includes(term)));
+        }
+
+        function showQDropDetail(drop) {
             const modal = document.getElementById('detail-modal');
             const content = document.getElementById('detail-content');
-            content.innerHTML = `
-                <div class="flex justify-between">
-                    <div>
-                        <span class="px-3 py-1 text-xs rounded-full bg-zinc-800">${entry.type}</span>
-                        <span class="ml-2 text-xs text-zinc-500">${entry.timestamp}</span>
-                    </div>
-                    <button onclick="hideDetailModal()"><i class="fa-solid fa-times text-xl"></i></button>
-                </div>
-                <h3 class="text-2xl font-semibold mt-3">${entry.title}</h3>
-                ${entry.url ? `<a href="${entry.url}" target="_blank" class="text-indigo-400 text-sm">${entry.url}</a>` : ''}
-                <div class="mt-4 text-sm">${entry.summary}</div>
-                ${entry.fact_check ? `<div class="mt-4 p-4 bg-zinc-950 rounded-2xl text-sm"><div class="font-semibold text-emerald-400 mb-1">Fact Check</div>${entry.fact_check}</div>` : ''}
-                <div class="mt-4 flex flex-wrap gap-2">${(entry.tags||[]).map(t => `<span class="px-3 py-1 text-xs grok-tag rounded-2xl">#${t}</span>`).join('')}</div>
-            `;
+            content.innerHTML = `<div class="flex justify-between"><span class="font-mono text-lg">Q Drop #${drop.dropnumber}</span><button onclick="hideDetailModal()"><i class="fa-solid fa-times text-xl"></i></button></div><div class="mt-6 text-sm">${drop.message}</div><div class="mt-4 text-xs text-zinc-400">${drop.date} • ${drop.esttime}</div>`;
             modal.style.display = 'flex';
         }
 
@@ -168,13 +171,14 @@
 
         async function refreshFromBackend() {
             await loadFromBackend();
-            alert('Log synced from backend.');
+            alert('Synced from backend.');
         }
 
         function initializeApp() {
             loadFromBackend();
+            loadFullQagg();
             document.getElementById('nav-dashboard').classList.add('nav-active');
-            console.log('%c[Grok Vault v2.1] Connected to live backend.', 'color:#666');
+            console.log('%c[Grok Vault v2.2] Full Qagg + live backend loaded.', 'color:#666');
         }
         window.onload = initializeApp;
     </script>
