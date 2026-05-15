@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Q Dot Connector • v1.4</title>
+    <title>Grok Vault • v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body { font-family: 'Inter', system_ui, sans-serif; }
-        .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
         .section { display: none; }
         .section.active { display: block; }
         .nav-active { color: #6366f1; border-bottom: 2px solid #6366f1; }
         .entry-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .grok-tag { background: #312e81; color: #a5b4fc; }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
@@ -21,22 +21,26 @@
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center gap-x-3">
                     <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
-                        <i class="fa-solid fa-link text-white text-2xl"></i>
+                        <i class="fa-solid fa-brain text-white text-2xl"></i>
                     </div>
                     <div>
-                        <span class="font-display text-3xl font-semibold tracking-tighter">Q•Connector</span>
-                        <span class="text-[10px] text-zinc-500 block -mt-1">v1.4 • Stable</span>
+                        <span class="font-semibold text-3xl tracking-tighter">Grok Vault</span>
+                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.0 • Persistent Memory</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-x-1 text-sm">
                     <button onclick="showSection('dashboard')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-dashboard">Dashboard</button>
                     <button onclick="showSection('entries')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-entries">Entries</button>
-                    <button onclick="showSection('qdrops')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-qdrops">Q Drops</button>
-                    <button onclick="showSection('connections')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-connections">Connections</button>
+                    <button onclick="showSection('search')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-search">Search</button>
                 </div>
-                <button onclick="showAddModal()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
-                    <i class="fa-solid fa-plus"></i> <span>New Entry</span>
-                </button>
+                <div class="flex items-center gap-x-2">
+                    <button onclick="showGrokImportModal()" class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
+                        <i class="fa-solid fa-robot"></i> <span>Grok Import</span>
+                    </button>
+                    <button onclick="showAddModal()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
+                        <i class="fa-solid fa-plus"></i> <span>New</span>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
@@ -45,67 +49,78 @@
         <div id="dashboard" class="section active">
             <div class="flex items-end justify-between mb-8">
                 <div>
-                    <h1 class="text-4xl font-semibold tracking-tighter">Intelligence Dashboard</h1>
-                    <p class="text-zinc-400 mt-1">Stable version • Seed + connections working</p>
+                    <h1 class="text-4xl font-semibold tracking-tighter">Grok Vault</h1>
+                    <p class="text-zinc-400 mt-1">Your persistent Grok memory • 12 entries • Ready for deep dives</p>
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-                    <div><div class="text-3xl font-semibold" id="stat-total">12</div><div class="text-sm text-zinc-400">Total Entries</div></div>
+                    <div><div class="text-3xl font-semibold" id="stat-total">12</div><div class="text-sm text-zinc-400">Total Logs</div></div>
                 </div>
                 <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-                    <div><div class="text-3xl font-semibold" id="stat-connections">47</div><div class="text-sm text-zinc-400">Active Connections</div></div>
+                    <div><div class="text-3xl font-semibold" id="stat-xposts">7</div><div class="text-sm text-zinc-400">X Posts Logged</div></div>
                 </div>
                 <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-                    <div><div class="text-3xl font-semibold" id="stat-qdrops">18</div><div class="text-sm text-zinc-400">Key Q Drops</div></div>
+                    <div><div class="text-3xl font-semibold" id="stat-connections">47</div><div class="text-sm text-zinc-400">Connections</div></div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-                    <h3 class="font-semibold mb-4">Recent Entries</h3>
-                    <div id="recent-entries" class="space-y-3"></div>
-                </div>
-                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-                    <h3 class="font-semibold mb-4">Key Themes</h3>
-                    <div id="active-themes" class="space-y-2 text-sm"></div>
-                </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                <h3 class="font-semibold mb-4">Recent Logs</h3>
+                <div id="recent-entries" class="space-y-3"></div>
             </div>
         </div>
 
         <div id="entries" class="section">
             <div class="flex justify-between mb-6">
-                <h2 class="text-3xl font-semibold tracking-tight">All Entries</h2>
-                <input id="search-input" type="text" placeholder="Search..." class="w-72 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterEntries()">
+                <h2 class="text-3xl font-semibold tracking-tight">All Logs</h2>
+                <input id="search-input" type="text" placeholder="Search title, summary, tags..." class="w-80 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterEntries()">
             </div>
             <div id="entries-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
 
-        <div id="qdrops" class="section">
-            <div class="flex justify-between mb-6">
-                <div>
-                    <h2 class="text-3xl font-semibold tracking-tight">Key Q Drops</h2>
-                    <p class="text-xs text-zinc-400">Stable curated set (full archive at qagg.news)</p>
-                </div>
-                <input id="qdrop-search" type="text" placeholder="Search..." class="w-80 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterQDrops()">
+        <div id="search" class="section">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+                <h2 class="text-3xl font-semibold tracking-tight mb-4">Deep Search</h2>
+                <p class="text-zinc-400 mb-6">Grok can query this log later. Export full JSON for analysis.</p>
+                <button onclick="exportForGrok()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-download"></i> <span>Export Full Log (JSON for Grok)</span>
+                </button>
             </div>
-            <div id="qdrops-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
+    </div>
 
-        <div id="connections" class="section">
-            <h2 class="text-3xl font-semibold tracking-tight mb-6">Smart Connections</h2>
-            <div id="connections-list" class="space-y-4"></div>
+    <!-- Grok Import Modal -->
+    <div id="grok-import-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]" onclick="if (event.target.id === 'grok-import-modal') hideGrokImportModal()">
+        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-2xl mx-4 p-6">
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <span class="px-3 py-1 text-xs rounded-full bg-violet-500/20 text-violet-300">GROK NATIVE</span>
+                    <h3 class="font-semibold text-xl mt-2">Import from Grok</h3>
+                </div>
+                <button onclick="hideGrokImportModal()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-times text-xl"></i></button>
+            </div>
+            <p class="text-sm text-zinc-400 mb-4">Paste the JSON block I output when you ask me to log something.</p>
+            <textarea id="grok-import-text" rows="8" class="w-full bg-zinc-950 border border-zinc-700 p-4 rounded-2xl text-sm font-mono" placeholder='{"type":"x_post","url":"https://x.com/...","title":"...","summary":"...","fact_check":"Verified: true","tags":["iran","policy"]}'></textarea>
+            <div class="mt-4 flex gap-x-3">
+                <button onclick="hideGrokImportModal()" class="flex-1 py-3 rounded-2xl border border-zinc-700 text-sm">Cancel</button>
+                <button onclick="importFromGrok()" class="flex-1 py-3 bg-violet-600 hover:bg-violet-700 text-white text-sm rounded-2xl font-medium">Import & Store</button>
+            </div>
+            <div class="mt-4 text-[10px] text-zinc-500">Format: JSON with type, url, title, summary, fact_check, tags, content</div>
         </div>
     </div>
 
     <div id="add-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]" onclick="if (event.target.id === 'add-modal') hideAddModal()">
         <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-lg mx-4 p-6">
-            <h3 class="font-semibold text-xl mb-5">New Entry</h3>
+            <h3 class="font-semibold text-xl mb-5">New Manual Entry</h3>
             <form id="add-form" onsubmit="addNewEntry(event)">
                 <input type="text" id="entry-title" required placeholder="Title" class="w-full bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm mb-4">
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <input type="date" id="entry-date" class="bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
-                    <select id="entry-category" class="bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
-                        <option>Iran War</option><option>Accountability</option><option>Symbolic Signals</option><option>Dmitriev Posts</option><option>Energy/Monetary</option><option>Q Drops</option><option>Other</option>
+                    <select id="entry-type" class="bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
+                        <option value="x_post">X Post</option>
+                        <option value="grok_insight">Grok Insight</option>
+                        <option value="web_link">Web Link</option>
+                        <option value="note">Note</option>
                     </select>
                 </div>
                 <textarea id="entry-summary" rows="3" required placeholder="Summary" class="w-full bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm mb-4"></textarea>
@@ -124,58 +139,28 @@
 
     <script>
         let entries = [];
-        let qDrops = [
-            {id:325, date:"2017-11-11", text:"Adam Schiff is a traitor to our country… Leaker. NAT SEC. EVIL. Tick Tock.", keywords:["schiff","traitor","leaker"]},
-            {id:947, date:"2018-03-15", text:"Iran next []… BOOM!!!!!!!!!!!!!!!", keywords:["iran","boom","hormuz"]},
-            {id:140, date:"2017-11-11", text:"What if China, Russia, and others are coordinating w/ POTUS to eliminate the NWO?", keywords:["china","russia","nwo"]},
-            {id:1943, date:"2018-08-28", text:"Watch IRAN. Something incredible is about to happen…", keywords:["iran","watch"]},
-            {id:4951, date:"2020-11-27", text:"Nothing can stop what is coming. NCSWIC.", keywords:["nothing","stop","ncs wic"]}
-        ];
 
         function loadData() {
-            const saved = localStorage.getItem('qdot_entries');
+            const saved = localStorage.getItem('grok_vault_entries');
             if (saved && JSON.parse(saved).length > 0) {
                 entries = JSON.parse(saved);
             } else {
                 entries = [
-                    {id:1, title:"Khamenei killed in U.S./Israeli strikes", date:"2026-02-28", category:"Iran War", summary:"Supreme Leader Ali Khamenei killed. IRGC heavily degraded. Controlled disruption of Strait of Hormuz via $20B U.S. maritime insurance facility.", tags:["khamenei","iran","strikes","hormuz"], source:"", connections:[]},
-                    {id:2, title:"China deploys naval task force to Hormuz", date:"2026-05-01", category:"Iran War", summary:"China deployed naval task force toward Hormuz. UAE left OPEC/OPEC+. U.S. defense partnership with Indonesia.", tags:["china","hormuz","opec"], source:"", connections:[]},
-                    {id:3, title:"Dmitriev black swan + tsunami GIFs", date:"2026-03-04", category:"Dmitriev Posts", summary:"Crowned black swan + tsunami GIFs. '7 Waves of EU/UK Crisis Tsunami' (May–Dec 2026) ending in Awakening & Reset in 2027.", tags:["dmitriev","tsunami","reset"], source:"", connections:[]},
-                    {id:4, title:"James Comey indicted", date:"2026-04-28", category:"Accountability", summary:"James Comey indicted on felony threat charges. Trump reposted 'THE STORM IS COMING'. SPLC indicted on 11 felony counts.", tags:["comey","storm","indictment"], source:"", connections:[]},
-                    {id:5, title:"MK Ultra hearing + biolabs investigation", date:"2026-05-13", category:"Accountability", summary:"MK Ultra congressional hearing. Tulsi Gabbard investigating 40+ U.S.-funded biolabs in Ukraine. New Russia hoax indictments.", tags:["mkultra","biolabs","tulsi"], source:"", connections:[]},
-                    {id:6, title:"Cole Allen / Chief AGI account", date:"2023-12-01", category:"Symbolic Signals", summary:"@HenryMa79561893 created Dec 2023 with 'Cole Allen' post, tuxedo Pepe, 'Time Machine Europe' header, username anagram to 'Chief AGI'.", tags:["coleallen","agi","symbolic"], source:"", connections:[]},
-                    {id:7, title:"White House bee symbolism", date:"2026-05-01", category:"Symbolic Signals", summary:"White House '🐝🐝🐝' posts (Beekeeper symbolism). Baron Trump books persistent 'future proves past' claims.", tags:["bees","symbolic","baron"], source:"", connections:[]},
-                    {id:8, title:"Q Drop #325 - Adam Schiff traitor", date:"2017-11-11", category:"Q Drops", summary:"'Adam Schiff is a traitor to our country… Leaker. NAT SEC. EVIL. Tick Tock.'", tags:["q325","schiff","traitor"], source:"", connections:[]},
-                    {id:9, title:"Q Drop #947 - Iran next", date:"2018-03-15", category:"Q Drops", summary:"'Iran next []… BOOM!!!!!!!!!!!!!!!'", tags:["q947","iran","boom"], source:"", connections:[]},
-                    {id:10, title:"Overall Assessment - Active execution phase", date:"2026-05-05", category:"Other", summary:"Strong alignment between geopolitical moves (Iran/Hormuz), legal accountability, symbolic signaling, and long-term reset goals.", tags:["assessment","reset","storm"], source:"", connections:[]}
+                    {id:1, timestamp:"2026-05-10T10:00:00Z", type:"x_post", url:"https://x.com/example/status/123", title:"Iran tensions escalate", summary:"Iran threatens Hormuz closure after sanctions. Oil +8%.", content:"Full post text...", fact_check:"Verified via multiple sources. High relevance to energy reset narrative.", relevance:"high", tags:["iran","hormuz","energy"], connections:[]},
+                    {id:2, timestamp:"2026-05-08T14:30:00Z", type:"grok_insight", title:"Dmitriev tsunami signal", summary:"'7 Waves' post points to EU crisis May-Dec 2026 ending in 2027 reset.", fact_check:"Consistent with prior Dmitriev patterns.", relevance:"high", tags:["dmitriev","reset","signal"], connections:[]}
                 ];
                 saveData();
             }
         }
 
-        function saveData() { localStorage.setItem('qdot_entries', JSON.stringify(entries)); }
-
-        function computeConnections(entry) {
-            const connections = [];
-            const entryWords = (entry.summary + ' ' + entry.tags.join(' ')).toLowerCase().split(/\s+/).filter(w => w.length > 3);
-            const entryDate = new Date(entry.date);
-            qDrops.forEach(drop => {
-                let score = 0;
-                const overlap = entryWords.filter(w => drop.keywords.includes(w)).length;
-                score += overlap * 12;
-                const days = Math.abs((entryDate - new Date(drop.date)) / (1000*3600*24));
-                if (days < 30) score += 20;
-                if (score > 30) connections.push({type:'qdrop', id:drop.id, score:Math.floor(score), reason:`${overlap} keywords + ${Math.round(days)}d`});
-            });
-            return connections.sort((a,b)=>b.score-a.score).slice(0,5);
-        }
+        function saveData() { localStorage.setItem('grok_vault_entries', JSON.stringify(entries)); }
 
         function updateDashboard() {
             document.getElementById('stat-total').textContent = entries.length;
-            const totalConns = entries.reduce((s,e)=>s+(e.connections?.length||0),0);
-            document.getElementById('stat-connections').textContent = totalConns;
+            const xCount = entries.filter(e => e.type === 'x_post').length;
+            document.getElementById('stat-xposts').textContent = xCount;
             const recent = document.getElementById('recent-entries');
-            recent.innerHTML = entries.slice(0,4).map(e => `<div class="p-3 bg-zinc-950 rounded-2xl border border-zinc-800 cursor-pointer" onclick="showEntryDetail(${e.id})"><div class="font-medium text-sm">${e.title}</div><div class="text-xs text-zinc-500">${e.date}</div></div>`).join('');
+            recent.innerHTML = entries.slice(0,4).map(e => `<div class="p-3 bg-zinc-950 rounded-2xl border border-zinc-800 cursor-pointer" onclick="showEntryDetail(${e.id})"><div class="flex justify-between"><span class="font-medium text-sm">${e.title}</span><span class="text-xs text-zinc-500">${e.timestamp.split('T')[0]}</span></div><div class="text-xs text-emerald-400 mt-1">${e.type} • ${e.tags?.slice(0,2).join(', ')}</div></div>`).join('');
         }
 
         function renderEntries(filtered=null) {
@@ -185,38 +170,29 @@
                 const card = document.createElement('div');
                 card.className = 'entry-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5 cursor-pointer';
                 card.onclick = () => showEntryDetail(entry.id);
-                card.innerHTML = `<div class="flex justify-between"><span class="px-3 py-1 text-xs rounded-full bg-red-500/20 text-red-400">${entry.category}</span><span class="text-xs text-zinc-500">${entry.date}</span></div><h4 class="font-semibold mt-2">${entry.title}</h4><p class="text-sm text-zinc-400 line-clamp-2 mt-1">${entry.summary}</p>`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="px-2.5 py-px text-xs rounded bg-zinc-800 text-zinc-400">${entry.type}</span>
+                            <span class="ml-2 text-xs text-zinc-500">${entry.timestamp.split('T')[0]}</span>
+                        </div>
+                        <div class="flex gap-1">${(entry.tags||[]).slice(0,2).map(t => `<span class="px-1.5 py-px text-[10px] grok-tag rounded">${t}</span>`).join('')}</div>
+                    </div>
+                    <h4 class="font-semibold mt-2">${entry.title}</h4>
+                    <p class="text-sm text-zinc-400 line-clamp-2 mt-1">${entry.summary}</p>
+                    ${entry.url ? `<a href="${entry.url}" target="_blank" class="text-xs text-indigo-400 mt-2 inline-block">View source →</a>` : ''}
+                `;
                 container.appendChild(card);
             });
         }
 
         function filterEntries() {
             const term = document.getElementById('search-input').value.toLowerCase();
-            renderEntries(entries.filter(e => e.title.toLowerCase().includes(term) || e.summary.toLowerCase().includes(term)));
-        }
-
-        function renderQDrops(filtered=null) {
-            const container = document.getElementById('qdrops-grid');
-            container.innerHTML = '';
-            (filtered || qDrops).forEach(drop => {
-                const card = document.createElement('div');
-                card.className = 'qdrop-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5 cursor-pointer';
-                card.onclick = () => showQDropDetail(drop);
-                card.innerHTML = `<div class="flex justify-between"><span class="font-mono text-xs px-2 py-px bg-violet-500/20 text-violet-300 rounded">Q#${drop.id}</span><span class="text-xs text-zinc-500">${drop.date}</span></div><div class="text-sm mt-3 line-clamp-3">${drop.text}</div>`;
-                container.appendChild(card);
-            });
-        }
-
-        function filterQDrops() {
-            const term = document.getElementById('qdrop-search').value.toLowerCase();
-            renderQDrops(qDrops.filter(d => d.text.toLowerCase().includes(term) || d.id.toString().includes(term)));
-        }
-
-        function showQDropDetail(drop) {
-            const modal = document.getElementById('detail-modal');
-            const content = document.getElementById('detail-content');
-            content.innerHTML = `<div class="flex justify-between"><span class="font-mono text-lg">Q#${drop.id}</span><button onclick="hideDetailModal()"><i class="fa-solid fa-times text-xl"></i></button></div><div class="mt-6 text-sm">${drop.text}</div>`;
-            modal.style.display = 'flex';
+            renderEntries(entries.filter(e => 
+                (e.title||'').toLowerCase().includes(term) || 
+                (e.summary||'').toLowerCase().includes(term) || 
+                (e.tags||[]).join(' ').toLowerCase().includes(term)
+            ));
         }
 
         function showEntryDetail(id) {
@@ -224,8 +200,21 @@
             if (!entry) return;
             const modal = document.getElementById('detail-modal');
             const content = document.getElementById('detail-content');
-            const connHTML = entry.connections && entry.connections.length > 0 ? entry.connections.map(c => `<div class="bg-zinc-950 p-3 rounded-2xl mb-2 text-sm"><div>Q#${c.id}</div><div class="text-xs text-zinc-400">${c.reason}</div></div>`).join('') : '<div class="text-zinc-400 text-sm">No connections yet.</div>';
-            content.innerHTML = `<div class="flex justify-between"><span class="px-3 py-1 text-xs rounded-full bg-red-500/20 text-red-400">${entry.category}</span><button onclick="hideDetailModal()"><i class="fa-solid fa-times"></i></button></div><h3 class="text-2xl font-semibold mt-3">${entry.title}</h3><div class="text-sm mt-4">${entry.summary}</div><div class="mt-6"><div class="font-semibold mb-2 text-sm">Connections</div>${connHTML}</div>`;
+            content.innerHTML = `
+                <div class="flex justify-between">
+                    <div>
+                        <span class="px-3 py-1 text-xs rounded-full bg-zinc-800">${entry.type}</span>
+                        <span class="ml-2 text-xs text-zinc-500">${entry.timestamp}</span>
+                    </div>
+                    <button onclick="hideDetailModal()"><i class="fa-solid fa-times text-xl"></i></button>
+                </div>
+                <h3 class="text-2xl font-semibold mt-3">${entry.title}</h3>
+                ${entry.url ? `<a href="${entry.url}" target="_blank" class="text-indigo-400 text-sm">${entry.url}</a>` : ''}
+                <div class="mt-4 text-sm">${entry.summary}</div>
+                ${entry.fact_check ? `<div class="mt-4 p-4 bg-zinc-950 rounded-2xl text-sm"><div class="font-semibold text-emerald-400 mb-1">Fact Check</div>${entry.fact_check}</div>` : ''}
+                <div class="mt-4 flex flex-wrap gap-2">${(entry.tags||[]).map(t => `<span class="px-3 py-1 text-xs grok-tag rounded-2xl">#${t}</span>`).join('')}</div>
+                ${entry.content ? `<div class="mt-4 text-xs text-zinc-400">Full: ${entry.content.substring(0,200)}...</div>` : ''}
+            `;
             modal.style.display = 'flex';
         }
 
@@ -233,8 +222,15 @@
 
         function addNewEntry(e) {
             e.preventDefault();
-            const newEntry = {id:Date.now(), title:document.getElementById('entry-title').value, date:document.getElementById('entry-date').value, category:document.getElementById('entry-category').value, summary:document.getElementById('entry-summary').value, tags:document.getElementById('entry-tags').value.split(',').map(t=>t.trim()).filter(Boolean), connections:[]};
-            newEntry.connections = computeConnections(newEntry);
+            const newEntry = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                type: document.getElementById('entry-type').value,
+                title: document.getElementById('entry-title').value,
+                summary: document.getElementById('entry-summary').value,
+                tags: document.getElementById('entry-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+                connections: []
+            };
             entries.unshift(newEntry);
             saveData();
             hideAddModal();
@@ -248,9 +244,60 @@
         }
         function hideAddModal() { document.getElementById('add-modal').style.display = 'none'; }
 
-        function updateConnectionsView() {
-            const container = document.getElementById('connections-list');
-            container.innerHTML = entries.slice(0,6).map(e => `<div class="p-4 bg-zinc-950 border border-zinc-800 rounded-2xl">${e.title} — ${e.connections?.length || 0} links</div>`).join('');
+        function showGrokImportModal() {
+            document.getElementById('grok-import-modal').style.display = 'flex';
+            document.getElementById('grok-import-text').focus();
+        }
+        function hideGrokImportModal() { document.getElementById('grok-import-modal').style.display = 'none'; }
+
+        function importFromGrok() {
+            const text = document.getElementById('grok-import-text').value.trim();
+            if (!text) return;
+            try {
+                let data;
+                if (text.startsWith('{')) {
+                    data = JSON.parse(text);
+                } else {
+                    // simple key: value parser fallback
+                    data = {};
+                    text.split('\n').forEach(line => {
+                        const [k,v] = line.split(':').map(s=>s.trim());
+                        if (k && v) data[k.toLowerCase()] = v;
+                    });
+                }
+                const newEntry = {
+                    id: Date.now(),
+                    timestamp: new Date().toISOString(),
+                    type: data.type || 'grok_insight',
+                    url: data.url || '',
+                    title: data.title || 'Untitled',
+                    summary: data.summary || data.content || '',
+                    content: data.content || '',
+                    fact_check: data.fact_check || '',
+                    relevance: data.relevance || 'medium',
+                    tags: Array.isArray(data.tags) ? data.tags : (data.tags || '').split(',').map(t=>t.trim()).filter(Boolean),
+                    connections: []
+                };
+                entries.unshift(newEntry);
+                saveData();
+                hideGrokImportModal();
+                updateDashboard();
+                renderEntries();
+                alert('Logged successfully. Grok can now reference entry #' + newEntry.id);
+            } catch(err) {
+                alert('Parse error. Use clean JSON format.');
+            }
+        }
+
+        function exportForGrok() {
+            const json = JSON.stringify(entries, null, 2);
+            const blob = new Blob([json], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `grok-vault-log-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         function showSection(s) {
@@ -258,23 +305,14 @@
             document.getElementById(s).classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
             document.getElementById('nav-' + s).classList.add('nav-active');
-            if (s === 'connections') updateConnectionsView();
         }
 
         function initializeApp() {
             loadData();
-            entries.forEach(e => {
-                if (!e.connections || e.connections.length === 0) {
-                    e.connections = computeConnections(e);
-                }
-            });
-            saveData();
             updateDashboard();
             renderEntries();
-            renderQDrops();
-            updateConnectionsView();
             document.getElementById('nav-dashboard').classList.add('nav-active');
-            console.log('%c[Q Dot Connector v1.4] Stable version — no external fetch issues.', 'color:#666');
+            console.log('%c[Grok Vault v2.0] Ready for Grok-native logging.', 'color:#666');
         }
         window.onload = initializeApp;
     </script>
