@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Q Dot Connector • v1.2</title>
+    <title>Q Dot Connector • v1.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -13,7 +13,6 @@
         .section.active { display: block; }
         .nav-active { color: #6366f1; border-bottom: 2px solid #6366f1; }
         .entry-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .entry-card:hover { transform: translateY(-2px); }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
@@ -26,7 +25,7 @@
                     </div>
                     <div>
                         <span class="font-display text-3xl font-semibold tracking-tighter">Q•Connector</span>
-                        <span class="text-[10px] text-zinc-500 block -mt-1">v1.2 • Seeded</span>
+                        <span class="text-[10px] text-zinc-500 block -mt-1">v1.3 • Fixed</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-x-1 text-sm">
@@ -47,7 +46,7 @@
             <div class="flex items-end justify-between mb-8">
                 <div>
                     <h1 class="text-4xl font-semibold tracking-tighter">Intelligence Dashboard</h1>
-                    <p class="text-zinc-400 mt-1">Seeded with your QAnon summary • May 2026</p>
+                    <p class="text-zinc-400 mt-1">Seeded + full Q drops • Connections fixed</p>
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -95,7 +94,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <div id="add-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]" onclick="if (event.target.id === 'add-modal') hideAddModal()">
         <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-lg mx-4 p-6">
             <h3 class="font-semibold text-xl mb-5">New Entry</h3>
@@ -130,7 +128,6 @@
             if (saved && JSON.parse(saved).length > 0) {
                 entries = JSON.parse(saved);
             } else {
-                // SEED DATA FROM YOUR SUMMARY
                 entries = [
                     {id:1, title:"Khamenei killed in U.S./Israeli strikes", date:"2026-02-28", category:"Iran War", summary:"Supreme Leader Ali Khamenei killed. IRGC heavily degraded. Controlled disruption of Strait of Hormuz via $20B U.S. maritime insurance facility.", tags:["khamenei","iran","strikes","hormuz"], source:"", connections:[]},
                     {id:2, title:"China deploys naval task force to Hormuz", date:"2026-05-01", category:"Iran War", summary:"China deployed naval task force toward Hormuz. UAE left OPEC/OPEC+. U.S. defense partnership with Indonesia.", tags:["china","hormuz","opec"], source:"", connections:[]},
@@ -154,9 +151,7 @@
                 const res = await fetch('https://qagg.news/json/qdrops.json');
                 const data = await res.json();
                 qDrops = data.map(d => ({id: d.dropnumber, date: d.date, text: d.message || '', keywords: (d.message || '').toLowerCase().split(/\s+/).filter(w => w.length > 3).slice(0,8)}));
-                document.getElementById('qdrop-count').innerHTML = `${qDrops.length} drops from Qagg.news`;
-                renderQDrops();
-            } catch(e) { document.getElementById('qdrop-count').innerHTML = 'Offline mode'; }
+            } catch(e) {}
         }
 
         function computeConnections(entry) {
@@ -267,14 +262,19 @@
 
         async function initializeApp() {
             loadData();
-            entries.forEach(e => { if (!e.connections || e.connections.length === 0) e.connections = computeConnections(e); });
-            saveData();
             await loadFullQDrops();
+            // NOW compute connections AFTER Q drops are loaded
+            entries.forEach(e => {
+                if (!e.connections || e.connections.length === 0) {
+                    e.connections = computeConnections(e);
+                }
+            });
+            saveData();
             updateDashboard();
             renderEntries();
             updateConnectionsView();
             document.getElementById('nav-dashboard').classList.add('nav-active');
-            console.log('%c[Q Dot Connector v1.2] Seeded with your summary + full Q drops.', 'color:#666');
+            console.log('%c[Q Dot Connector v1.3] Connections fixed — seed data now linked to full Q drops.', 'color:#666');
         }
         window.onload = initializeApp;
     </script>
