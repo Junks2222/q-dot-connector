@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Grok Vault • v2.6</title>
+    <title>Grok Vault • v2.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -15,91 +15,98 @@
         .grok-tag { background: #312e81; color: #a5b4fc; }
         .qdrop-card { transition: all 0.2s ease; }
         @media (max-width: 640px) {
-            .nav-btn { padding-left: 0.75rem; padding-right: 0.75rem; font-size: 0.75rem; }
-            .stat-card { padding: 1rem; }
-            .entry-card { padding: 1rem; }
+            .nav-btn { padding-left: 0.5rem; padding-right: 0.5rem; font-size: 0.7rem; }
         }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200 pb-safe">
     <nav class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <div class="flex items-center justify-between h-16">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-14">
                 <div class="flex items-center gap-x-2">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center">
-                        <i class="fa-solid fa-brain text-white text-xl"></i>
+                    <div class="w-7 h-7 bg-indigo-600 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-brain text-white"></i>
                     </div>
-                    <div>
-                        <span class="font-semibold text-2xl tracking-tighter">Grok Vault</span>
-                    </div>
+                    <span class="font-semibold text-xl">Grok Vault</span>
                 </div>
-                <div class="flex items-center gap-x-1 text-xs sm:text-sm overflow-x-auto">
-                    <button onclick="showSection('dashboard')" class="nav-btn px-3 py-2 rounded-xl hover:bg-zinc-900 whitespace-nowrap" id="nav-dashboard">Dash</button>
-                    <button onclick="showSection('entries')" class="nav-btn px-3 py-2 rounded-xl hover:bg-zinc-900 whitespace-nowrap" id="nav-entries">Logs</button>
-                    <button onclick="showSection('qdrops')" class="nav-btn px-3 py-2 rounded-xl hover:bg-zinc-900 whitespace-nowrap" id="nav-qdrops">Q</button>
-                    <button onclick="showSection('timeline')" class="nav-btn px-3 py-2 rounded-xl hover:bg-zinc-900 whitespace-nowrap" id="nav-timeline">Time</button>
+                <div class="flex items-center gap-x-1 text-xs">
+                    <button onclick="showSection('dashboard')" class="nav-btn px-2 py-1.5 rounded-xl hover:bg-zinc-900" id="nav-dashboard">Dash</button>
+                    <button onclick="showSection('entries')" class="nav-btn px-2 py-1.5 rounded-xl hover:bg-zinc-900" id="nav-entries">Logs</button>
+                    <button onclick="showSection('qdrops')" class="nav-btn px-2 py-1.5 rounded-xl hover:bg-zinc-900" id="nav-qdrops">Q</button>
+                    <button onclick="showSection('timeline')" class="nav-btn px-2 py-1.5 rounded-xl hover:bg-zinc-900" id="nav-timeline">Time</button>
                 </div>
                 <div class="flex items-center gap-x-1">
-                    <button onclick="grokReviewAll()" class="px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-medium rounded-2xl flex items-center gap-x-1">
-                        <i class="fa-solid fa-robot"></i>
+                    <button onclick="showImportModal()" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-xs rounded-2xl flex items-center gap-x-1">
+                        <i class="fa-solid fa-download"></i> <span>Import</span>
                     </button>
-                    <button onclick="refreshFromBackend()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium rounded-2xl flex items-center gap-x-1">
-                        <i class="fa-solid fa-sync"></i>
+                    <button onclick="grokReviewAll()" class="px-2 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs rounded-2xl">
+                        <i class="fa-solid fa-robot"></i>
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <div class="max-w-7xl mx-auto px-4 py-5">
         <div id="dashboard" class="section active">
-            <div class="mb-6">
+            <div class="mb-5">
                 <h1 class="text-3xl font-semibold tracking-tighter">Grok Vault</h1>
-                <p class="text-zinc-400 text-sm mt-1">v2.6 • iPhone optimized</p>
+                <p class="text-zinc-400 text-sm">v2.7 • All previous logs + full Q drops</p>
             </div>
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
-                    <div><div class="text-2xl font-semibold" id="stat-total">0</div><div class="text-xs text-zinc-400">Logs</div></div>
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+                    <div class="text-3xl font-semibold" id="stat-total">12</div>
+                    <div class="text-xs text-zinc-400">Logs</div>
                 </div>
-                <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
-                    <div><div class="text-2xl font-semibold" id="stat-qdrops">4965</div><div class="text-xs text-zinc-400">Q Drops</div></div>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+                    <div class="text-3xl font-semibold">4965</div>
+                    <div class="text-xs text-zinc-400">Q Drops</div>
                 </div>
             </div>
             <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
-                <h3 class="font-semibold text-sm mb-3">Recent</h3>
-                <div id="recent-entries" class="space-y-2"></div>
+                <div class="font-semibold text-sm mb-3">Recent</div>
+                <div id="recent-entries" class="space-y-2 text-sm"></div>
             </div>
         </div>
 
         <div id="entries" class="section">
-            <div class="flex justify-between mb-4">
-                <h2 class="text-2xl font-semibold tracking-tight">All Logs</h2>
-                <input id="search-input" type="text" placeholder="Search" class="w-40 bg-zinc-900 border border-zinc-700 px-3 py-2 rounded-2xl text-sm" onkeyup="filterEntries()">
+            <div class="flex justify-between mb-3">
+                <h2 class="text-2xl font-semibold">All Logs</h2>
+                <input id="search-input" type="text" placeholder="Search" class="w-32 bg-zinc-900 border border-zinc-700 px-3 py-1.5 rounded-2xl text-sm" onkeyup="filterEntries()">
             </div>
             <div id="entries-grid" class="grid grid-cols-1 gap-3"></div>
         </div>
 
         <div id="qdrops" class="section">
-            <div class="flex justify-between mb-4">
-                <div>
-                    <h2 class="text-2xl font-semibold tracking-tight">Q Drops</h2>
-                    <p class="text-xs text-zinc-400">4,965 • Search</p>
-                </div>
-                <input id="qdrop-search" type="text" placeholder="Search" class="w-40 bg-zinc-900 border border-zinc-700 px-3 py-2 rounded-2xl text-sm" onkeyup="filterQDrops()">
+            <div class="flex justify-between mb-3">
+                <h2 class="text-2xl font-semibold">Q Drops</h2>
+                <input id="qdrop-search" type="text" placeholder="Search" class="w-32 bg-zinc-900 border border-zinc-700 px-3 py-1.5 rounded-2xl text-sm" onkeyup="filterQDrops()">
             </div>
-            <div id="qdrops-grid" class="grid grid-cols-1 gap-3 max-h-[65vh] overflow-auto"></div>
+            <div id="qdrops-grid" class="grid grid-cols-1 gap-3 max-h-[60vh] overflow-auto"></div>
         </div>
 
         <div id="timeline" class="section">
             <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-                <h2 class="text-2xl font-semibold tracking-tight mb-4">Timeline</h2>
+                <h2 class="text-2xl font-semibold mb-4">Timeline</h2>
                 <div id="timeline-list" class="space-y-3"></div>
             </div>
         </div>
     </div>
 
+    <!-- Import Modal -->
+    <div id="import-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]" onclick="if (event.target.id === 'import-modal') hideImportModal()">
+        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-md mx-4 p-5">
+            <h3 class="font-semibold mb-3">Import Logs (JSON)</h3>
+            <textarea id="import-text" rows="6" class="w-full bg-zinc-950 border border-zinc-700 p-3 rounded-2xl text-xs font-mono" placeholder='[{"type":"x_post","url":"...","title":"...","summary":"...","tags":["iran"]}]'></textarea>
+            <div class="mt-4 flex gap-x-2">
+                <button onclick="hideImportModal()" class="flex-1 py-2 rounded-2xl border border-zinc-700 text-sm">Cancel</button>
+                <button onclick="importLogs()" class="flex-1 py-2 bg-violet-600 text-white text-sm rounded-2xl">Import</button>
+            </div>
+        </div>
+    </div>
+
     <div id="detail-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]" onclick="if (event.target.id === 'detail-modal') hideDetailModal()">
-        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-lg mx-4 p-6" id="detail-content"></div>
+        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-md mx-4 p-6" id="detail-content"></div>
     </div>
 
     <script>
@@ -109,15 +116,12 @@
         function autoTag(entry) {
             if (!qDrops.length) return entry.tags || [];
             const text = (entry.summary + ' ' + (entry.title || '')).toLowerCase();
-            const matches = qDrops.filter(d => {
-                const qtext = (d.message || '').toLowerCase();
-                return text.split(' ').some(w => w.length > 4 && qtext.includes(w));
-            });
-            const newTags = matches.slice(0,3).map(d => `q${d.dropnumber}`);
+            const matches = qDrops.filter(d => (d.message || '').toLowerCase().includes(text.split(' ')[0]));
+            const newTags = matches.slice(0,2).map(d => `q${d.dropnumber}`);
             return [...new Set([...(entry.tags || []), ...newTags])];
         }
 
-        async function loadFromBackend() {
+        function loadFromBackend() {
             const saved = localStorage.getItem('grok_vault_entries');
             if (saved) entries = JSON.parse(saved);
             entries.forEach(e => e.tags = autoTag(e));
@@ -130,7 +134,6 @@
             try {
                 const res = await fetch('https://qagg.news/json/qdrops.json');
                 qDrops = await res.json();
-                document.getElementById('stat-qdrops').textContent = qDrops.length;
                 renderQDrops();
             } catch(e) {}
         }
@@ -138,7 +141,7 @@
         function updateDashboard() {
             document.getElementById('stat-total').textContent = entries.length;
             const recent = document.getElementById('recent-entries');
-            recent.innerHTML = entries.slice(0,3).map(e => `<div class="p-3 bg-zinc-950 rounded-2xl border border-zinc-800 cursor-pointer" onclick="showEntryDetail(${e.id})"><div class="flex justify-between"><span class="font-medium text-sm">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div><div class="text-xs text-emerald-400 mt-1">${e.type}</div></div>`).join('');
+            recent.innerHTML = entries.slice(0,3).map(e => `<div class="p-2.5 bg-zinc-950 rounded-2xl border border-zinc-800 cursor-pointer" onclick="showEntryDetail(${e.id})"><div class="flex justify-between"><span class="font-medium text-sm">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div></div>`).join('');
         }
 
         function renderEntries(filtered=null) {
@@ -155,17 +158,17 @@
 
         function filterEntries() {
             const term = document.getElementById('search-input').value.toLowerCase();
-            renderEntries(entries.filter(e => (e.title||'').toLowerCase().includes(term) || (e.summary||'').toLowerCase().includes(term) || (e.tags||[]).join(' ').toLowerCase().includes(term)));
+            renderEntries(entries.filter(e => (e.title||'').toLowerCase().includes(term) || (e.summary||'').toLowerCase().includes(term)));
         }
 
         function renderQDrops(filtered=null) {
             const container = document.getElementById('qdrops-grid');
             container.innerHTML = '';
-            (filtered || qDrops).slice(0, 150).forEach(drop => {
+            (filtered || qDrops).slice(0, 120).forEach(drop => {
                 const card = document.createElement('div');
                 card.className = 'qdrop-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4 cursor-pointer';
                 card.onclick = () => showQDropDetail(drop);
-                card.innerHTML = `<div class="flex justify-between"><span class="font-mono text-xs px-2 py-px bg-violet-500/20 text-violet-300 rounded">Q#${drop.dropnumber}</span><span class="text-xs text-zinc-500">${drop.date}</span></div><div class="text-sm mt-2 line-clamp-2">${drop.message.substring(0,120)}...</div>`;
+                card.innerHTML = `<div class="flex justify-between"><span class="font-mono text-xs px-2 py-px bg-violet-500/20 text-violet-300 rounded">Q#${drop.dropnumber}</span><span class="text-xs text-zinc-500">${drop.date}</span></div><div class="text-sm mt-2 line-clamp-2">${drop.message.substring(0,100)}...</div>`;
                 container.appendChild(card);
             });
         }
@@ -178,7 +181,7 @@
         function showQDropDetail(drop) {
             const modal = document.getElementById('detail-modal');
             const content = document.getElementById('detail-content');
-            content.innerHTML = `<div class="flex justify-between"><span class="font-mono text-lg">Q#${drop.dropnumber}</span><button onclick="hideDetailModal()"><i class="fa-solid fa-times"></i></button></div><div class="mt-4 text-sm">${drop.message}</div>`;
+            content.innerHTML = `<div class="flex justify-between"><span class="font-mono">Q#${drop.dropnumber}</span><button onclick="hideDetailModal()"><i class="fa-solid fa-times"></i></button></div><div class="mt-4 text-sm">${drop.message}</div>`;
             modal.style.display = 'flex';
         }
 
@@ -198,10 +201,35 @@
             const sorted = [...entries].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             sorted.forEach(e => {
                 const div = document.createElement('div');
-                div.className = 'p-4 bg-zinc-950 border border-zinc-800 rounded-2xl';
-                div.innerHTML = `<div class="flex justify-between text-sm"><span class="font-medium">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div>`;
+                div.className = 'p-3 bg-zinc-950 border border-zinc-800 rounded-2xl';
+                div.innerHTML = `<div class="flex justify-between text-sm"><span>${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div>`;
                 container.appendChild(div);
             });
+        }
+
+        function showImportModal() {
+            document.getElementById('import-modal').style.display = 'flex';
+        }
+        function hideImportModal() { document.getElementById('import-modal').style.display = 'none'; }
+
+        function importLogs() {
+            const text = document.getElementById('import-text').value.trim();
+            if (!text) return;
+            try {
+                const data = JSON.parse(text);
+                const newEntries = Array.isArray(data) ? data : [data];
+                newEntries.forEach(e => {
+                    e.id = Date.now() + Math.random();
+                    e.timestamp = e.timestamp || new Date().toISOString();
+                    e.tags = autoTag(e);
+                    entries.unshift(e);
+                });
+                localStorage.setItem('grok_vault_entries', JSON.stringify(entries));
+                hideImportModal();
+                updateDashboard();
+                renderEntries();
+                alert(newEntries.length + ' logs imported.');
+            } catch(err) { alert('Invalid JSON'); }
         }
 
         function grokReviewAll() {
@@ -215,15 +243,23 @@
             URL.revokeObjectURL(url);
         }
 
-        function refreshFromBackend() {
-            loadFromBackend();
-        }
-
         function initializeApp() {
             loadFromBackend();
             loadFullQagg();
+            // Seed previous logs if none exist
+            if (entries.length === 0) {
+                const seed = [
+                    {"type":"x_post","url":"https://x.com/kadmitriev/status/2052950692684251264","title":"Dmitriev: Obama exits shadows","summary":"Obama panics post-Russiagate, seeks protection via Carney in Toronto.","tags":["dmitriev","obama","russiagate"],"timestamp":"2026-05-09T03:16:00Z"},
+                    {"type":"x_post","url":"https://x.com/ODNIgov/status/2054226488291922302","title":"ODNI: Brennan admits legion","summary":"Brennan confirms bureaucrats sabotaging Trump. Deep State real.","tags":["deepstate","brennan"],"timestamp":"2026-05-12T15:45:00Z"},
+                    {"type":"x_post","url":"https://x.com/tgletter/status/2055160317030609067","title":"Russia cuts Cuba oil — US moves","summary":"Russia stops fuel. 20hr blackouts. CIA offers $100M for changes. Cuba says yes.","tags":["cuba","russia","energy"],"timestamp":"2026-05-15T05:36:00Z"},
+                    {"type":"x_post","url":"https://x.com/embassyofrussia/status/2055557927293903026","title":"Putin to China May 19-20","summary":"Putin visits Xi for 25th treaty anniversary. Russia-China alignment.","tags":["russia","china","putin"],"timestamp":"2026-05-16T07:56:00Z"}
+                ];
+                seed.forEach(e => { e.id = Date.now() + Math.random(); e.tags = autoTag(e); entries.push(e); });
+                localStorage.setItem('grok_vault_entries', JSON.stringify(entries));
+            }
+            updateDashboard();
+            renderEntries();
             document.getElementById('nav-dashboard').classList.add('nav-active');
-            console.log('%c[Grok Vault v2.6] iPhone UI optimized.', 'color:#666');
         }
         window.onload = initializeApp;
     </script>
