@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grok Vault • v2.5</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Grok Vault • v2.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -14,90 +14,92 @@
         .entry-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .grok-tag { background: #312e81; color: #a5b4fc; }
         .qdrop-card { transition: all 0.2s ease; }
+        @media (max-width: 640px) {
+            .nav-btn { padding-left: 0.75rem; padding-right: 0.75rem; font-size: 0.75rem; }
+            .stat-card { padding: 1rem; }
+            .entry-card { padding: 1rem; }
+        }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-200">
+<body class="bg-zinc-950 text-zinc-200 pb-safe">
     <nav class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-x-3">
-                    <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
-                        <i class="fa-solid fa-brain text-white text-2xl"></i>
+                <div class="flex items-center gap-x-2">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-brain text-white text-xl"></i>
                     </div>
                     <div>
-                        <span class="font-semibold text-3xl tracking-tighter">Grok Vault</span>
-                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.5 • Q Drops Fixed</span>
+                        <span class="font-semibold text-2xl tracking-tighter">Grok Vault</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-x-1 text-sm">
-                    <button onclick="showSection('dashboard')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-dashboard">Dashboard</button>
-                    <button onclick="showSection('entries')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-entries">Entries</button>
-                    <button onclick="showSection('qdrops')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-qdrops">Q Drops</button>
-                    <button onclick="showSection('timeline')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-timeline">Timeline</button>
+                <div class="flex items-center gap-x-1 text-xs sm:text-sm overflow-x-auto">
+                    <button onclick="showSection('dashboard')" class="nav-btn px-3 py-2 rounded-xl hover:bg-zinc-900 whitespace-nowrap" id="nav-dashboard">Dash</button>
+                    <button onclick="showSection('entries')" class="nav-btn px-3 py-2 rounded-xl hover:bg-zinc-900 whitespace-nowrap" id="nav-entries">Logs</button>
+                    <button onclick="showSection('qdrops')" class="nav-btn px-3 py-2 rounded-xl hover:bg-zinc-900 whitespace-nowrap" id="nav-qdrops">Q</button>
+                    <button onclick="showSection('timeline')" class="nav-btn px-3 py-2 rounded-xl hover:bg-zinc-900 whitespace-nowrap" id="nav-timeline">Time</button>
                 </div>
-                <div class="flex items-center gap-x-2">
-                    <button onclick="grokReviewAll()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
-                        <i class="fa-solid fa-robot"></i> <span>Grok Review</span>
+                <div class="flex items-center gap-x-1">
+                    <button onclick="grokReviewAll()" class="px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-medium rounded-2xl flex items-center gap-x-1">
+                        <i class="fa-solid fa-robot"></i>
                     </button>
-                    <button onclick="refreshFromBackend()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
-                        <i class="fa-solid fa-sync"></i> <span>Sync</span>
+                    <button onclick="refreshFromBackend()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium rounded-2xl flex items-center gap-x-1">
+                        <i class="fa-solid fa-sync"></i>
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div id="dashboard" class="section active">
-            <div class="flex items-end justify-between mb-8">
-                <div>
-                    <h1 class="text-4xl font-semibold tracking-tighter">Grok Vault</h1>
-                    <p class="text-zinc-400 mt-1">v2.5 • All logs + full Q drops visible</p>
+            <div class="mb-6">
+                <h1 class="text-3xl font-semibold tracking-tighter">Grok Vault</h1>
+                <p class="text-zinc-400 text-sm mt-1">v2.6 • iPhone optimized</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+                    <div><div class="text-2xl font-semibold" id="stat-total">0</div><div class="text-xs text-zinc-400">Logs</div></div>
+                </div>
+                <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+                    <div><div class="text-2xl font-semibold" id="stat-qdrops">4965</div><div class="text-xs text-zinc-400">Q Drops</div></div>
                 </div>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-                    <div><div class="text-3xl font-semibold" id="stat-total">0</div><div class="text-sm text-zinc-400">Total Logs</div></div>
-                </div>
-                <div class="stat-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
-                    <div><div class="text-3xl font-semibold" id="stat-qdrops">4965</div><div class="text-sm text-zinc-400">Qagg Posts</div></div>
-                </div>
-            </div>
-            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-                <h3 class="font-semibold mb-4">Recent Logs</h3>
-                <div id="recent-entries" class="space-y-3"></div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+                <h3 class="font-semibold text-sm mb-3">Recent</h3>
+                <div id="recent-entries" class="space-y-2"></div>
             </div>
         </div>
 
         <div id="entries" class="section">
-            <div class="flex justify-between mb-6">
-                <h2 class="text-3xl font-semibold tracking-tight">All Logs</h2>
-                <input id="search-input" type="text" placeholder="Search..." class="w-80 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterEntries()">
+            <div class="flex justify-between mb-4">
+                <h2 class="text-2xl font-semibold tracking-tight">All Logs</h2>
+                <input id="search-input" type="text" placeholder="Search" class="w-40 bg-zinc-900 border border-zinc-700 px-3 py-2 rounded-2xl text-sm" onkeyup="filterEntries()">
             </div>
-            <div id="entries-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <div id="entries-grid" class="grid grid-cols-1 gap-3"></div>
         </div>
 
         <div id="qdrops" class="section">
-            <div class="flex justify-between mb-6">
+            <div class="flex justify-between mb-4">
                 <div>
-                    <h2 class="text-3xl font-semibold tracking-tight">Full Qagg Drops (4,965)</h2>
-                    <p class="text-xs text-zinc-400">Search works • Scroll for more</p>
+                    <h2 class="text-2xl font-semibold tracking-tight">Q Drops</h2>
+                    <p class="text-xs text-zinc-400">4,965 • Search</p>
                 </div>
-                <input id="qdrop-search" type="text" placeholder="Search Q drops..." class="w-80 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterQDrops()">
+                <input id="qdrop-search" type="text" placeholder="Search" class="w-40 bg-zinc-900 border border-zinc-700 px-3 py-2 rounded-2xl text-sm" onkeyup="filterQDrops()">
             </div>
-            <div id="qdrops-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-auto"></div>
+            <div id="qdrops-grid" class="grid grid-cols-1 gap-3 max-h-[65vh] overflow-auto"></div>
         </div>
 
         <div id="timeline" class="section">
-            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-                <h2 class="text-3xl font-semibold tracking-tight mb-6">Timeline View</h2>
-                <div id="timeline-list" class="space-y-4"></div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                <h2 class="text-2xl font-semibold tracking-tight mb-4">Timeline</h2>
+                <div id="timeline-list" class="space-y-3"></div>
             </div>
         </div>
     </div>
 
     <div id="detail-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]" onclick="if (event.target.id === 'detail-modal') hideDetailModal()">
-        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-2xl mx-4 p-7" id="detail-content"></div>
+        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-lg mx-4 p-6" id="detail-content"></div>
     </div>
 
     <script>
@@ -136,7 +138,7 @@
         function updateDashboard() {
             document.getElementById('stat-total').textContent = entries.length;
             const recent = document.getElementById('recent-entries');
-            recent.innerHTML = entries.slice(0,4).map(e => `<div class="p-3 bg-zinc-950 rounded-2xl border border-zinc-800 cursor-pointer" onclick="showEntryDetail(${e.id})"><div class="flex justify-between"><span class="font-medium text-sm">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div><div class="text-xs text-emerald-400 mt-1">${e.type} • ${(e.tags||[]).slice(0,2).join(', ')}</div></div>`).join('');
+            recent.innerHTML = entries.slice(0,3).map(e => `<div class="p-3 bg-zinc-950 rounded-2xl border border-zinc-800 cursor-pointer" onclick="showEntryDetail(${e.id})"><div class="flex justify-between"><span class="font-medium text-sm">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div><div class="text-xs text-emerald-400 mt-1">${e.type}</div></div>`).join('');
         }
 
         function renderEntries(filtered=null) {
@@ -144,9 +146,9 @@
             container.innerHTML = '';
             (filtered || entries).forEach(entry => {
                 const card = document.createElement('div');
-                card.className = 'entry-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5 cursor-pointer';
+                card.className = 'entry-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4 cursor-pointer';
                 card.onclick = () => showEntryDetail(entry.id);
-                card.innerHTML = `<div class="flex justify-between"><span class="px-2.5 py-px text-xs rounded bg-zinc-800 text-zinc-400">${entry.type}</span><span class="ml-2 text-xs text-zinc-500">${(entry.timestamp||'').split('T')[0]}</span></div><h4 class="font-semibold mt-2">${entry.title}</h4><p class="text-sm text-zinc-400 line-clamp-2 mt-1">${entry.summary}</p><div class="flex gap-2 mt-2">${(entry.tags||[]).slice(0,3).map(t => `<span class="px-1.5 py-px text-[10px] grok-tag rounded">${t}</span>`).join('')}</div>${entry.credibility ? `<div class="text-xs mt-1 text-amber-400">Credibility: ${entry.credibility}</div>` : ''}`;
+                card.innerHTML = `<div class="flex justify-between"><span class="px-2 py-px text-xs rounded bg-zinc-800 text-zinc-400">${entry.type}</span><span class="ml-2 text-xs text-zinc-500">${(entry.timestamp||'').split('T')[0]}</span></div><h4 class="font-semibold mt-1">${entry.title}</h4><p class="text-sm text-zinc-400 line-clamp-2">${entry.summary}</p>`;
                 container.appendChild(card);
             });
         }
@@ -159,11 +161,11 @@
         function renderQDrops(filtered=null) {
             const container = document.getElementById('qdrops-grid');
             container.innerHTML = '';
-            (filtered || qDrops).slice(0, 200).forEach(drop => {
+            (filtered || qDrops).slice(0, 150).forEach(drop => {
                 const card = document.createElement('div');
-                card.className = 'qdrop-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5 cursor-pointer';
+                card.className = 'qdrop-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4 cursor-pointer';
                 card.onclick = () => showQDropDetail(drop);
-                card.innerHTML = `<div class="flex justify-between"><span class="font-mono text-xs px-2 py-px bg-violet-500/20 text-violet-300 rounded">Q#${drop.dropnumber}</span><span class="text-xs text-zinc-500">${drop.date}</span></div><div class="text-sm mt-3 line-clamp-3">${drop.message.substring(0,180)}...</div>`;
+                card.innerHTML = `<div class="flex justify-between"><span class="font-mono text-xs px-2 py-px bg-violet-500/20 text-violet-300 rounded">Q#${drop.dropnumber}</span><span class="text-xs text-zinc-500">${drop.date}</span></div><div class="text-sm mt-2 line-clamp-2">${drop.message.substring(0,120)}...</div>`;
                 container.appendChild(card);
             });
         }
@@ -176,7 +178,7 @@
         function showQDropDetail(drop) {
             const modal = document.getElementById('detail-modal');
             const content = document.getElementById('detail-content');
-            content.innerHTML = `<div class="flex justify-between"><span class="font-mono text-lg">Q Drop #${drop.dropnumber}</span><button onclick="hideDetailModal()"><i class="fa-solid fa-times text-xl"></i></button></div><div class="mt-6 text-sm">${drop.message}</div><div class="mt-4 text-xs text-zinc-400">${drop.date}</div>`;
+            content.innerHTML = `<div class="flex justify-between"><span class="font-mono text-lg">Q#${drop.dropnumber}</span><button onclick="hideDetailModal()"><i class="fa-solid fa-times"></i></button></div><div class="mt-4 text-sm">${drop.message}</div>`;
             modal.style.display = 'flex';
         }
 
@@ -197,7 +199,7 @@
             sorted.forEach(e => {
                 const div = document.createElement('div');
                 div.className = 'p-4 bg-zinc-950 border border-zinc-800 rounded-2xl';
-                div.innerHTML = `<div class="flex justify-between"><span class="font-medium">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div><div class="text-sm text-zinc-400 mt-1">${e.summary}</div>`;
+                div.innerHTML = `<div class="flex justify-between text-sm"><span class="font-medium">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div>`;
                 container.appendChild(div);
             });
         }
@@ -211,19 +213,17 @@
             a.download = `grok-review-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            alert('Downloaded for Grok review.');
         }
 
         function refreshFromBackend() {
             loadFromBackend();
-            alert('Synced.');
         }
 
         function initializeApp() {
             loadFromBackend();
             loadFullQagg();
             document.getElementById('nav-dashboard').classList.add('nav-active');
-            console.log('%c[Grok Vault v2.5] Q Drops now shows 200 + search. Logs persist.', 'color:#666');
+            console.log('%c[Grok Vault v2.6] iPhone UI optimized.', 'color:#666');
         }
         window.onload = initializeApp;
     </script>
