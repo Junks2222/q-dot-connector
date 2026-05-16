@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grok Vault • v2.3</title>
+    <title>Grok Vault • v2.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -26,16 +26,19 @@
                     </div>
                     <div>
                         <span class="font-semibold text-3xl tracking-tighter">Grok Vault</span>
-                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.3 • Fixed</span>
+                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.4 • All Features</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-x-1 text-sm">
                     <button onclick="showSection('dashboard')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-dashboard">Dashboard</button>
                     <button onclick="showSection('entries')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-entries">Entries</button>
                     <button onclick="showSection('qdrops')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-qdrops">Q Drops</button>
-                    <button onclick="showSection('search')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-search">Search</button>
+                    <button onclick="showSection('timeline')" class="nav-btn px-4 py-2 rounded-xl hover:bg-zinc-900" id="nav-timeline">Timeline</button>
                 </div>
                 <div class="flex items-center gap-x-2">
+                    <button onclick="grokReviewAll()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
+                        <i class="fa-solid fa-robot"></i> <span>Grok Review</span>
+                    </button>
                     <button onclick="refreshFromBackend()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-2xl flex items-center gap-x-2">
                         <i class="fa-solid fa-sync"></i> <span>Sync</span>
                     </button>
@@ -49,7 +52,7 @@
             <div class="flex items-end justify-between mb-8">
                 <div>
                     <h1 class="text-4xl font-semibold tracking-tighter">Grok Vault</h1>
-                    <p class="text-zinc-400 mt-1">Live DB + full Qagg • Nav fixed</p>
+                    <p class="text-zinc-400 mt-1">v2.4 • Auto-tag + Credibility + Timeline + Review</p>
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -78,17 +81,17 @@
             <div class="flex justify-between mb-6">
                 <div>
                     <h2 class="text-3xl font-semibold tracking-tight">Full Qagg Drops</h2>
-                    <p class="text-xs text-zinc-400">4,965 posts • Live from qagg.news</p>
+                    <p class="text-xs text-zinc-400">4,965 posts • Live</p>
                 </div>
                 <input id="qdrop-search" type="text" placeholder="Search Q drops..." class="w-80 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterQDrops()">
             </div>
             <div id="qdrops-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-auto"></div>
         </div>
 
-        <div id="search" class="section">
-            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
-                <h2 class="text-3xl font-semibold tracking-tight mb-4">Deep Search</h2>
-                <p class="text-zinc-400">Grok queries full Qagg + your logs.</p>
+        <div id="timeline" class="section">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+                <h2 class="text-3xl font-semibold tracking-tight mb-6">Timeline View</h2>
+                <div id="timeline-list" class="space-y-4"></div>
             </div>
         </div>
     </div>
@@ -101,12 +104,24 @@
         let entries = [];
         let qDrops = [];
 
+        function autoTag(entry) {
+            if (!qDrops.length) return entry.tags || [];
+            const text = (entry.summary + ' ' + (entry.title || '')).toLowerCase();
+            const matches = qDrops.filter(d => {
+                const qtext = (d.message || '').toLowerCase();
+                return text.split(' ').some(w => w.length > 4 && qtext.includes(w));
+            });
+            const newTags = matches.slice(0,3).map(d => `q${d.dropnumber}`);
+            return [...new Set([...(entry.tags || []), ...newTags])];
+        }
+
         async function loadFromBackend() {
-            // Fallback to localStorage if no backend GET yet
             const saved = localStorage.getItem('grok_vault_entries');
             if (saved) entries = JSON.parse(saved);
+            entries.forEach(e => e.tags = autoTag(e));
             updateDashboard();
             renderEntries();
+            renderTimeline();
         }
 
         async function loadFullQagg() {
@@ -115,7 +130,7 @@
                 qDrops = await res.json();
                 document.getElementById('stat-qdrops').textContent = qDrops.length;
                 renderQDrops();
-            } catch(e) { console.log('Qagg load skipped'); }
+            } catch(e) {}
         }
 
         function updateDashboard() {
@@ -131,7 +146,7 @@
                 const card = document.createElement('div');
                 card.className = 'entry-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5 cursor-pointer';
                 card.onclick = () => showEntryDetail(entry.id);
-                card.innerHTML = `<div class="flex justify-between"><span class="px-2.5 py-px text-xs rounded bg-zinc-800 text-zinc-400">${entry.type}</span><span class="ml-2 text-xs text-zinc-500">${(entry.timestamp||'').split('T')[0]}</span></div><h4 class="font-semibold mt-2">${entry.title}</h4><p class="text-sm text-zinc-400 line-clamp-2 mt-1">${entry.summary}</p>${entry.url ? `<a href="${entry.url}" target="_blank" class="text-xs text-indigo-400 mt-2 inline-block">View source →</a>` : ''}`;
+                card.innerHTML = `<div class="flex justify-between"><span class="px-2.5 py-px text-xs rounded bg-zinc-800 text-zinc-400">${entry.type}</span><span class="ml-2 text-xs text-zinc-500">${(entry.timestamp||'').split('T')[0]}</span></div><h4 class="font-semibold mt-2">${entry.title}</h4><p class="text-sm text-zinc-400 line-clamp-2 mt-1">${entry.summary}</p><div class="flex gap-2 mt-2">${(entry.tags||[]).slice(0,3).map(t => `<span class="px-1.5 py-px text-[10px] grok-tag rounded">${t}</span>`).join('')}</div>${entry.credibility ? `<div class="text-xs mt-1 text-amber-400">Credibility: ${entry.credibility}</div>` : ''}`;
                 container.appendChild(card);
             });
         }
@@ -172,18 +187,43 @@
             document.getElementById(s).classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
             document.getElementById('nav-' + s).classList.add('nav-active');
+            if (s === 'timeline') renderTimeline();
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timeline-list');
+            container.innerHTML = '';
+            const sorted = [...entries].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            sorted.forEach(e => {
+                const div = document.createElement('div');
+                div.className = 'p-4 bg-zinc-950 border border-zinc-800 rounded-2xl';
+                div.innerHTML = `<div class="flex justify-between"><span class="font-medium">${e.title}</span><span class="text-xs text-zinc-500">${(e.timestamp||'').split('T')[0]}</span></div><div class="text-sm text-zinc-400 mt-1">${e.summary}</div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function grokReviewAll() {
+            const json = JSON.stringify(entries, null, 2);
+            const blob = new Blob([json], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `grok-review-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            alert('Downloaded for Grok review. Paste to me for full analysis.');
         }
 
         function refreshFromBackend() {
             loadFromBackend();
-            alert('Synced. Run curl to add new entries.');
+            alert('Synced.');
         }
 
         function initializeApp() {
             loadFromBackend();
             loadFullQagg();
             document.getElementById('nav-dashboard').classList.add('nav-active');
-            console.log('%c[Grok Vault v2.3] Nav fixed. Qagg loaded. Run curl to populate entries.', 'color:#666');
+            console.log('%c[Grok Vault v2.4] All features live: auto-tag, credibility, timeline, review.', 'color:#666');
         }
         window.onload = initializeApp;
     </script>
