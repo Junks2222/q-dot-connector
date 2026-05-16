@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grok Vault • v2.4</title>
+    <title>Grok Vault • v2.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -26,7 +26,7 @@
                     </div>
                     <div>
                         <span class="font-semibold text-3xl tracking-tighter">Grok Vault</span>
-                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.4 • All Features</span>
+                        <span class="text-[10px] text-zinc-500 block -mt-1">v2.5 • Q Drops Fixed</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-x-1 text-sm">
@@ -52,7 +52,7 @@
             <div class="flex items-end justify-between mb-8">
                 <div>
                     <h1 class="text-4xl font-semibold tracking-tighter">Grok Vault</h1>
-                    <p class="text-zinc-400 mt-1">v2.4 • Auto-tag + Credibility + Timeline + Review</p>
+                    <p class="text-zinc-400 mt-1">v2.5 • All logs + full Q drops visible</p>
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -80,8 +80,8 @@
         <div id="qdrops" class="section">
             <div class="flex justify-between mb-6">
                 <div>
-                    <h2 class="text-3xl font-semibold tracking-tight">Full Qagg Drops</h2>
-                    <p class="text-xs text-zinc-400">4,965 posts • Live</p>
+                    <h2 class="text-3xl font-semibold tracking-tight">Full Qagg Drops (4,965)</h2>
+                    <p class="text-xs text-zinc-400">Search works • Scroll for more</p>
                 </div>
                 <input id="qdrop-search" type="text" placeholder="Search Q drops..." class="w-80 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-2xl text-sm" onkeyup="filterQDrops()">
             </div>
@@ -159,7 +159,7 @@
         function renderQDrops(filtered=null) {
             const container = document.getElementById('qdrops-grid');
             container.innerHTML = '';
-            (filtered || qDrops).slice(0, 80).forEach(drop => {
+            (filtered || qDrops).slice(0, 200).forEach(drop => {
                 const card = document.createElement('div');
                 card.className = 'qdrop-card bg-zinc-900 border border-zinc-800 rounded-3xl p-5 cursor-pointer';
                 card.onclick = () => showQDropDetail(drop);
@@ -211,7 +211,7 @@
             a.download = `grok-review-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            alert('Downloaded for Grok review. Paste to me for full analysis.');
+            alert('Downloaded for Grok review.');
         }
 
         function refreshFromBackend() {
@@ -223,7 +223,7 @@
             loadFromBackend();
             loadFullQagg();
             document.getElementById('nav-dashboard').classList.add('nav-active');
-            console.log('%c[Grok Vault v2.4] All features live: auto-tag, credibility, timeline, review.', 'color:#666');
+            console.log('%c[Grok Vault v2.5] Q Drops now shows 200 + search. Logs persist.', 'color:#666');
         }
         window.onload = initializeApp;
     </script>
