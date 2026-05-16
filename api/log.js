@@ -1,6 +1,14 @@
+let logs = [];
+
 export default function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
-  // TODO: persist to DB/file (Supabase, JSON, etc.)
-  console.log('Grok logged entry:', req.body);
-  res.status(200).json({ ok: true, id: Date.now() });
+  if (req.method === 'POST') {
+    const entry = req.body;
+    logs.unshift(entry);
+    console.log('Logged:', entry.title || entry.summary);
+    return res.status(200).json({ ok: true, id: Date.now() });
+  }
+  if (req.method === 'GET') {
+    return res.status(200).json(logs.slice(0, 50));
+  }
+  res.status(405).end();
 }
